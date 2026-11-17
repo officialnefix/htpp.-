@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KS-7 // Yetkisiz giriş yasak</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔒%3C/text%3E%3C/svg%3E">
+<style>
+:root{--desk:#0f1720;--panel:#16212d;--amber:#ffb347;--dim:#b8842f;--red:#e5383b;--paper:#ddd6c1;--ink:#1c1b18;--bar:#0b0b0b;
+--mono:"Cascadia Mono","SF Mono",ui-monospace,Menlo,Consolas,"Courier New",monospace;
+--stamp:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;background:var(--desk);color:var(--amber);font:16px/1.6 var(--mono)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px)}
+body.alarm{animation:alarm 1s steps(2) infinite}
+@keyframes alarm{50%{background:#3a0d0f}}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.screen{display:none;min-height:100vh}.screen.on{display:block}
+.dim{color:var(--dim)}.bad{color:var(--red)}
+
+/* kilit + tarama ekranı */
+.tw{max-width:680px;margin:0 auto;padding:12vh 22px 40px}
+#boot div,#scanlog div{margin:0 0 .35em}
+#boot .bad{color:var(--red)}
+.prompt{display:flex;gap:.6em;align-items:center;margin-top:1.6em}
+.prompt label{color:var(--dim)}
+#pw,#tin{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px solid var(--dim);border-radius:0;color:var(--amber);font:inherit;padding:.3em 0;caret-color:var(--amber)}
+#msg{min-height:1.6em;margin:.8em 0 0}
+.link{background:none;border:0;padding:0;font:inherit;color:var(--dim);text-decoration:underline;cursor:pointer}
+.bar{height:6px;background:#2a2113;margin-top:1.4em}
+.bar i{display:block;height:100%;width:0;background:var(--amber);transition:width .4s}
+
+/* dosya ekranı */
+.wrap{max-width:1080px;margin:0 auto;padding:18px 18px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:14px;padding-bottom:26px}
+.btn{background:transparent;border:1px solid var(--dim);color:var(--amber);font:inherit;padding:.35em .9em;cursor:pointer}
+.btn:hover{background:#2a2113}
+.layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
+.paper{position:relative;background:var(--paper);color:var(--ink);padding:34px 30px 30px;box-shadow:0 18px 40px rgba(0,0,0,.45);transform:rotate(-.4deg)}
+.paper::before{content:"Dosya KS-7/0817";position:absolute;top:-25px;left:26px;background:var(--paper);padding:3px 16px 0;font-size:13px;line-height:22px}
+.paper h1{font:700 clamp(1.5rem,4vw,2.1rem)/1.15 var(--mono);margin:0 0 .3em}
+.paper h2{font:700 1.05rem var(--mono);margin:1.6em 0 .6em}
+.paper p{margin:.5em 0}.paper .dim{color:#5b5640;font-size:14px;margin:0}
+.stamp{position:absolute;top:22px;right:20px;font:34px/1 var(--stamp);letter-spacing:.06em;color:var(--red);border:4px solid var(--red);padding:.15em .35em;transform:rotate(9deg);opacity:.88;mix-blend-mode:multiply}
+.paper h1{padding-right:195px}
+.fresh .stamp{animation:slam .45s .25s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes slam{from{transform:rotate(9deg) scale(2.6);opacity:0}to{transform:rotate(9deg) scale(1);opacity:.88}}
+.rd{font:inherit;border:0;padding:0 .15em;background:var(--bar);color:var(--bar);cursor:pointer;border-radius:1px;white-space:normal;text-align:left}
+.rd.open{background:#f2d95c;color:var(--ink);cursor:default}
+.files{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.files button{width:100%;text-align:left;font:inherit;background:transparent;border:1px solid var(--ink);color:var(--ink);padding:.5em .8em;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+.files button:hover{background:rgba(0,0,0,.07)}
+.files button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+#view{margin-top:14px;padding:12px 14px;border-left:4px solid var(--red);background:rgba(0,0,0,.06);min-height:6em}
+.side{display:grid;gap:22px}
+.card{background:var(--panel);border:1px solid #2a3a4b;padding:16px}
+.card h2{font-size:1rem;margin:0 0 10px}
+#radar{width:100%;height:auto;display:block}
+#red{display:block;margin:10px auto 6px;width:124px;height:124px;border-radius:50%;border:0;color:#fff;font:700 15px/1.2 var(--mono);cursor:pointer;
+background:radial-gradient(circle at 35% 30%,#ff5a5d,#c92a2d 55%,#8f1d20);box-shadow:0 8px 0 #5c1214,0 0 0 8px #231a10,0 0 0 10px var(--dim);transition:transform .08s,box-shadow .08s}
+#red:active{transform:translateY(6px);box-shadow:0 2px 0 #5c1214,0 0 0 8px #231a10,0 0 0 10px var(--dim)}
+.termbox{margin-top:22px;background:#0a1017;border:1px solid #2a3a4b;padding:14px 16px}
+#out{height:190px;overflow:auto;font-size:14px;margin-bottom:8px}
+#out div{white-space:pre-wrap}.cmd{color:var(--dim)}
+.foot{margin:26px 0 0;color:var(--dim);font-size:13px}
+.joke{position:fixed;inset:0;z-index:40;background:rgba(5,8,12,.94);display:grid;place-items:center;padding:24px;text-align:center}
+.joke h2{font:clamp(2.2rem,8vw,4rem)/1.05 var(--stamp);color:var(--red);margin:0 0 .4em}
+.joke p{max-width:34em;margin:.4em auto}
+#mx{position:fixed;inset:0;z-index:30;pointer-events:none;opacity:.8}
+@media(max-width:820px){.layout{grid-template-columns:1fr}}
+@media(max-width:560px){.stamp{position:static;display:inline-block;margin-bottom:14px}.paper h1{padding-right:0}.paper{padding:26px 20px}}
+@media(prefers-reduced-motion:reduce){body.alarm{animation:none;background:#3a0d0f}.fresh .stamp{animation:none}#red,.bar i{transition:none}}
+</style>
+</head>
+<body>
+<noscript><p style="padding:24px">JavaScript kapalıysa sır saklanamaz. Aç da gir.</p></noscript>
+<canvas id="mx" hidden></canvas>
+
+<!-- 1) KİLİT EKRANI -->
+<section id="lock" class="screen on"><div class="tw">
+  <div id="boot"></div>
+  <form id="lockform" class="prompt" autocomplete="off">
+    <label for="pw">şifre&gt;</label>
+    <input id="pw" type="password" autocomplete="off" spellcheck="false" autofocus>
+  </form>
+  <p id="msg" role="status" aria-live="polite"></p>
+  <button id="hint" class="link" type="button">ipucu</button>
+</div></section>
+
+<!-- 2) KİMLİK TARAMA -->
+<section id="scan" class="screen"><div class="tw">
+  <div id="scanlog"></div>
+  <div class="bar"><i id="bar"></i></div>
+</div></section>
+
+<!-- 3) GİZLİ DOSYA -->
+<section id="file" class="screen"><div class="wrap">
+  <div class="top">
+    <span>KS-7 güvenli terminal, yetki seviyesi 9/9</span>
+    <span>Oturum <b id="clock">10:00</b> <button id="logout" class="btn" type="button">Oturumu kapat</button></span>
+  </div>
+
+  <div class="layout">
+    <article class="paper">
+      <div class="stamp">ÇOK GİZLİ</div>
+      <h1>Operasyon Sessiz Simit</h1>
+      <p class="dim">Hazırlayan: Gizli Birim 7</p>
+      <p class="dim">Dağıtım: yalnızca sen</p>
+
+      <p style="margin-top:1.2em">Bu belgeyi okuyan kişi artık
+        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">çay molasının 15:30’da olduğunu</button>
+        bilmektedir. Operasyonun amacı
+        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">bütün bisküvileri</button>
+        güvence altına almak ve
+        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">kimseye söylememektir</button>.
+        Aksini iddia eden herkes
+        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">muhtemelen aç</button>.</p>
+      <p class="dim">Siyah çubuklara tıklayarak gizli kısımları açabilirsin.</p>
+
+      <h2>Dosyalar</h2>
+      <ul class="files" id="files"></ul>
+      <div id="view" aria-live="polite">Bir dosya seç. Hepsi gizli, ama bazıları daha gizli.</div>
+    </article>
+
+    <div class="side">
+      <section class="card">
+        <h2>Canlı takip radarı</h2>
+        <canvas id="radar" width="480" height="480" role="img" aria-label="Kedi, simitçi, komşu teyze ve kargoyu gösteren şaka radarı"></canvas>
+      </section>
+      <section class="card" style="text-align:center">
+        <h2>Acil durum</h2>
+        <button id="red" type="button">ASLA<br>BASMA</button>
+        <p class="dim" style="margin:.6em 0 0;font-size:14px">Gerçekten. Hiçbir şey olmaz. Basma.</p>
+      </section>
+    </div>
+  </div>
+
+  <section class="termbox">
+    <div id="out" aria-live="polite"></div>
+    <form id="tform" class="prompt" style="margin:0" autocomplete="off">
+      <label for="tin">ks7&gt;</label>
+      <input id="tin" type="text" autocomplete="off" spellcheck="false" aria-label="Komut">
+    </form>
+  </section>
+
+  <p class="foot">Bu site tamamen şaka. İçinde gizli hiçbir şey yok; şifre bile kodun içinde duruyor.</p>
+</div></section>
+
+<!-- Kırmızı düğme sonrası -->
+<div id="joke" class="joke" hidden role="dialog" aria-modal="true" aria-labelledby="jt">
+  <div>
+    <h2 id="jt">Dünya kurtarıldı.</h2>
+    <p>Şaka. Düğmenin hiçbir işlevi yok. Ama bu odaya giren herkes basıyor.</p>
+    <p class="dim">Bu tarayıcıdan düğmeye basılma sayısı: <b id="cnt">0</b></p>
+    <p><button id="jokeok" class="btn" type="button">Tamam, kimseye söylemem</button></p>
+  </div>
+</div>
+
+<script>
+/* ŞİFREYİ DEĞİŞTİRMEK İÇİN SADECE ALTTAKİ SATIRI DÜZENLE (küçük harf yaz) */
+const SIFRE = "claude";
+
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let tries = 0, busy = false, left = 600, timer = 0, bid = 0;
+
+const show = id => { document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); scrollTo(0, 0); };
+const log = (box, text, cls) => { const p = document.createElement("div"); if (cls) p.className = cls; p.textContent = text; box.appendChild(p); return p; };
+async function typeLine(box, text, cls, ms = reduce ? 0 : 12) {
+  const p = log(box, "", cls);
+  for (const ch of text) { p.textContent += ch; if (ms) await sleep(ms); }
+}
+
+/* ---------- Açılış yazıları ---------- */
+async function boot(first) {
+  const my = ++bid, b = $("#boot"); b.textContent = "";
+  const L = first
+    ? ["KS-7 GÜVENLİ TERMİNAL v0.0.1 (şaka sürümü)",
+       "Bağlantı şifrelendi: AES-4096. Böyle bir şey yok ama kulağa hoş geliyor.",
+       "Yetkisiz erişim yasaktır. Ayrıca komiktir.",
+       "Devam etmek için şifre girin."]
+    : ["Terminal yeniden başlatıldı.", "Şifre girin."];
+  for (const t of L) { await typeLine(b, t); if (my !== bid) return; }
+  $("#pw").focus();
+}
+
+/* ---------- Şifre kontrolü ---------- */
+const WRONG = ["Erişim reddedildi.", "Yanlış. Bir daha dene, kimse bakmıyor.", "Bu, son uyarıya çok yakın bir şey."];
+const EGG = {
+  "1234": "Şifren bu kadar kolay olsaydı bu site gizli olmazdı.",
+  "123456": "Şifren bu kadar kolay olsaydı bu site gizli olmazdı.",
+  "admin": "Admin çay almaya gitti.",
+  "şifre": "Çok yakın. Hayır, aslında çok uzak.",
+  "sifre": "Çok yakın. Hayır, aslında çok uzak.",
+  "password": "İngilizce denemek zekice. Yine de olmadı."
+};
+
+$("#hint").addEventListener("click", () => {
+  $("#msg").className = ""; $("#msg").textContent = "İpucu: bu siteyi yazan yapay zekânın adı, küçük harflerle.";
+  $("#pw").focus();
+});
+
+$("#lockform").addEventListener("submit", e => {
+  e.preventDefault(); if (busy) return;
+  const v = $("#pw").value.trim().toLowerCase(); $("#pw").value = "";
+  if (!v) return;
+  if (v === SIFRE) return unlock();
+  tries++;
+  if (tries >= 3) return alarm();
+  const m = $("#msg"); m.className = "bad";
+  m.textContent = (Object.hasOwn(EGG, v) ? EGG[v] : WRONG[tries - 1]) + " Kalan hak: " + (3 - tries);
+});
+
+async function alarm() {
+  busy = true; bid++; document.body.classList.add("alarm"); $("#pw").disabled = true;
+  const b = $("#boot"); b.textContent = ""; $("#msg").textContent = "";
+  const L = [["ALARM! 3 yanlış deneme.", "bad"], ["İz sürme başlatıldı...", ""], ["Konum tespit ediliyor...", ""],
+    ["Konum bulundu: şu an oturduğun yer.", "bad"], ["Kamera açılıyor... şaka, açılmıyor. Yine de gülümse.", ""]];
+  for (const [t, c] of L) { await typeLine(b, t, c); await sleep(reduce ? 100 : 350); }
+  for (let i = 10; i > 0; i--) { $("#msg").className = ""; $("#msg").textContent = "Sistem sakinleşiyor: " + i; await sleep(1000); }
+  document.body.classList.remove("alarm");
+  tries = 0; busy = false; $("#pw").disabled = false; $("#msg").textContent = ""; boot(false);
+}
+
+/* ---------- Kimlik tarama ---------- */
+async function unlock() {
+  busy = true; $("#pw").disabled = true; $("#msg").textContent = "";
+  show("scan");
+  const s = $("#scanlog"), bar = $("#bar"); s.textContent = ""; bar.style.width = "0";
+  const steps = ["Şifre kabul edildi.", "Retina taranıyor...", "Parmak izi doğrulanıyor...",
+    "DNA örneği analiz ediliyor (kullandığın bardaktan)...", "Kimlik doğrulandı: SEN. Yetki seviyesi 9/9."];
+  for (let i = 0; i < steps.length; i++) {
+    await typeLine(s, steps[i]);
+    bar.style.width = ((i + 1) / steps.length * 100) + "%";
+    await sleep(reduce ? 100 : 450);
+  }
+  show("file"); $("#file").classList.add("fresh");
+  startSession(); radar.start();
+  busy = false; $("#pw").disabled = false; $("#tin").focus();
+}
+
+function lock(note) {
+  clearInterval(timer); radar.stop(); $("#file").classList.remove("fresh");
+  tries = 0; show("lock"); boot(false);
+  const m = $("#msg"); m.className = ""; m.textContent = note || "";
+}
+
+/* ---------- Oturum süresi ---------- */
+function tick() { $("#clock").textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0"); }
+function startSession() {
+  left = 600; clearInterval(timer); tick();
+  timer = setInterval(() => { left--; tick(); if (left <= 0) lock("Oturum zaman aşımına uğradı."); }, 1000);
+}
+["pointerdown", "keydown"].forEach(ev => addEventListener(ev, () => { left = 600; }));
+$("#logout").addEventListener("click", () => lock("Oturum kapatıldı."));
+
+/* ---------- Gizli dosyalar + karartmalar ---------- */
+const FILES = [
+  ["Operasyon Simit", "7/9", "Hedef: sabah 08:30’da sıcak simidi yakalamak. Yöntem: fırının önünde sessizce beklemek. Durum: başarılı. Susam sayısı: sayılamadı."],
+  ["Proje Kedi", "8/9", "Gözlem: kediler dünyayı zaten yönetiyor. Bizim görevimiz mama vermek ve itiraz etmemek. Ajanlar 14:00 ile 17:00 arasında uyuyor, rahatsız etmeyin."],
+  ["Olay 404", "5/9", "Pazartesi sabahı motivasyon bulunamadı. Son görüldüğü yer: cuma akşamı. Aramalar sürüyor, kahve takviyesi istendi."],
+  ["Protokol Çay", "9/9", "Çay bardağı asla yarım bırakılmaz. İstisna: ikinci çay. İkinci çaydan sonra üçüncü çay protokolü otomatik devreye girer."]
+];
+const list = $("#files");
+FILES.forEach((f, i) => {
+  const li = document.createElement("li"), b = document.createElement("button");
+  b.type = "button"; b.setAttribute("aria-pressed", "false");
+  b.innerHTML = "<span></span><span>Seviye " + f[1] + "</span>"; b.firstChild.textContent = f[0];
+  b.addEventListener("click", () => {
+    list.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    const v = $("#view"); v.textContent = ""; const h = document.createElement("b"); h.textContent = f[0] + " (açıldı)";
+    v.append(h, document.createElement("br"), f[2]);
+  });
+  li.appendChild(b); list.appendChild(li);
+});
+document.querySelectorAll(".rd").forEach(b => b.addEventListener("click", () => { b.classList.add("open"); b.removeAttribute("aria-label"); }));
+
+/* ---------- Radar ---------- */
+const radar = (() => {
+  const c = $("#radar"), x = c.getContext("2d"), S = c.width, R = S / 2 - 6, TAU = Math.PI * 2;
+  let a = 0, raf = 0;
+  const B = [["Kedi (şüpheli)", .55, 1.0], ["Simitçi", .8, 2.7], ["Komşu Teyze", .35, 4.2], ["Kargo (geç kalmış)", .85, 5.5]]
+    .map(([n, r, t]) => ({ n, r, t, v: reduce ? 1 : 0 }));
+  function draw() {
+    x.clearRect(0, 0, S, S); x.save(); x.translate(S / 2, S / 2);
+    x.strokeStyle = "rgba(255,179,71,.3)"; x.lineWidth = 1.5;
+    for (let i = 1; i <= 3; i++) { x.beginPath(); x.arc(0, 0, R * i / 3, 0, TAU); x.stroke(); }
+    x.beginPath(); x.moveTo(-R, 0); x.lineTo(R, 0); x.moveTo(0, -R); x.lineTo(0, R); x.stroke();
+    if (!reduce) for (let i = 0; i < 28; i++) {
+      x.strokeStyle = "rgba(255,179,71," + (.55 * (1 - i / 28)) + ")"; x.beginPath(); x.moveTo(0, 0);
+      x.lineTo(R * Math.cos(a - i * .03), R * Math.sin(a - i * .03)); x.stroke();
+    }
+    x.font = "22px monospace";
+    for (const b of B) {
+      if (!reduce) { const d = ((a - b.t) % TAU + TAU) % TAU; b.v = d < .07 ? 1 : Math.max(0, b.v - .004); }
+      if (b.v > .03) {
+        const bx = R * b.r * Math.cos(b.t), by = R * b.r * Math.sin(b.t);
+        x.globalAlpha = b.v; x.fillStyle = "#ffb347"; x.beginPath(); x.arc(bx, by, 7, 0, TAU); x.fill();
+        x.textAlign = bx > 0 ? "right" : "left"; x.fillText(b.n, bx > 0 ? bx - 12 : bx + 12, by - 10); x.globalAlpha = 1;
+      }
+    }
+    x.restore();
+  }
+  function loop() { a = (a + .02) % TAU; draw(); raf = requestAnimationFrame(loop); }
+  return { start() { cancelAnimationFrame(raf); reduce ? draw() : loop(); }, stop() { cancelAnimationFrame(raf); } };
+})();
+
+/* ---------- Kırmızı düğme ---------- */
+$("#red").addEventListener("click", () => {
+  let n = 0;
+  try { n = +localStorage.getItem("ks7") || 0; } catch (e) {}
+  n++;
+  try { localStorage.setItem("ks7", n); } catch (e) {}
+  $("#cnt").textContent = n; $("#joke").hidden = false; $("#jokeok").focus();
+});
+const closeJoke = () => { $("#joke").hidden = true; $("#red").focus(); };
+$("#jokeok").addEventListener("click", closeJoke);
+addEventListener("keydown", e => { if (e.key === "Escape" && !$("#joke").hidden) closeJoke(); });
+
+/* ---------- Matrix yağmuru ---------- */
+function matrix(sec = 6) {
+  const c = $("#mx"), x = c.getContext("2d"); c.width = innerWidth; c.height = innerHeight; c.hidden = false;
+  const cols = Math.floor(c.width / 16), y = Array.from({ length: cols }, () => Math.random() * -40), end = Date.now() + sec * 1000;
+  (function f() {
+    if (Date.now() > end) { c.hidden = true; return; }
+    x.fillStyle = "rgba(15,23,32,.12)"; x.fillRect(0, 0, c.width, c.height);
+    x.fillStyle = "#ffb347"; x.font = "16px monospace";
+    y.forEach((v, i) => { x.fillText("01ABCXYZ#%"[Math.random() * 10 | 0], i * 16, v * 16); y[i] = v * 16 > c.height && Math.random() > .97 ? 0 : v + 1; });
+    requestAnimationFrame(f);
+  })();
+}
+
+/* ---------- Mini terminal ---------- */
+const out = $("#out"), CAT = { "simit.txt": 0, "kedi.txt": 1, "404.txt": 2, "cay.txt": 3 };
+log(out, "“yardım” yazarak başla.", "cmd");
+async function run(line) {
+  if (!line.trim()) return;
+  const [c, ...a] = line.trim().toLowerCase().split(/\s+/), say = t => { log(out, t); out.scrollTop = out.scrollHeight; };
+  log(out, "> " + line, "cmd");
+  switch (c) {
+    case "yardım": case "yardim": case "help": say("Komutlar: yardım, ls, cat <dosya>, whoami, tarih, hack, matrix, sudo, temizle, çıkış"); break;
+    case "ls": say("simit.txt  kedi.txt  404.txt  cay.txt  sifre_burada_degil.txt"); break;
+    case "cat": {
+      const f = a[0];
+      if (f && Object.hasOwn(CAT, f)) say(FILES[CAT[f]][2]);
+      else if (f && f.startsWith("sifre")) say("Gerçekten burada değil. Aramayı bırak.");
+      else say("cat: " + (f || "?") + ": böyle bir dosya yok");
+      break;
+    }
+    case "whoami": say("Çok önemli biri. Muhtemelen şu an çay içiyor."); break;
+    case "tarih": say(new Date().toLocaleString("tr-TR")); break;
+    case "sudo": say("Burada herkes zaten root. Yine de olmaz."); break;
+    case "claude": say("Selam! Bu siteyi ben yazdım. Hata varsa kediyi suçla."); break;
+    case "matrix":
+      if (reduce) say("Hareket azaltma açık, matrix iptal edildi.");
+      else { say("Kırmızı hap mı, mavi hap mı? Bence simit."); matrix(); }
+      break;
+    case "hack":
+      for (const t of ["Uydulara bağlanılıyor...", "Banka kasaları taranıyor...", "Dur. Bu etik değil.", "İşlem iptal edildi. Bunun yerine bir çay demlendi."]) {
+        say(t); await sleep(reduce ? 0 : 700);
+      }
+      break;
+    case "temizle": case "clear": out.textContent = ""; break;
+    case "çıkış": case "cikis": case "exit": lock("Oturum kapatıldı."); break;
+    default: say("komut bulunamadı: " + c + ". “yardım” yaz.");
+  }
+}
+$("#tform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const i = $("#tin"), v = i.value; i.value = ""; i.disabled = true;
+  await run(v);
+  i.disabled = false; if ($("#file").classList.contains("on")) i.focus();
+});
+
+boot(true);
+</script>
+</body>
+</html>
