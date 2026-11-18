@@ -1,380 +1,398 @@
 <!doctype html>
-<html lang="tr">
+<html lang="tr" translate="no">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KS-7 // Yetkisiz giriş yasak</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔒%3C/text%3E%3C/svg%3E">
+<meta name="google" content="notranslate">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#090c11">
+<title>Meridyen // Güvenli Erişim</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23090c11'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%236aa6ff' stroke-width='2'/%3E%3Cellipse cx='16' cy='16' rx='4' ry='10' fill='none' stroke='%236aa6ff' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-:root{--desk:#0f1720;--panel:#16212d;--amber:#ffb347;--dim:#b8842f;--red:#e5383b;--paper:#ddd6c1;--ink:#1c1b18;--bar:#0b0b0b;
---mono:"Cascadia Mono","SF Mono",ui-monospace,Menlo,Consolas,"Courier New",monospace;
---stamp:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;color-scheme:dark}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-body{margin:0;min-height:100vh;background:var(--desk);color:var(--amber);font:16px/1.6 var(--mono)}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px)}
-body.alarm{animation:alarm 1s steps(2) infinite}
-@keyframes alarm{50%{background:#3a0d0f}}
-:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
-.screen{display:none;min-height:100vh}.screen.on{display:block}
-.dim{color:var(--dim)}.bad{color:var(--red)}
-
-/* kilit + tarama ekranı */
-.tw{max-width:680px;margin:0 auto;padding:12vh 22px 40px}
-#boot div,#scanlog div{margin:0 0 .35em}
-#boot .bad{color:var(--red)}
-.prompt{display:flex;gap:.6em;align-items:center;margin-top:1.6em}
-.prompt label{color:var(--dim)}
-#pw,#tin{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px solid var(--dim);border-radius:0;color:var(--amber);font:inherit;padding:.3em 0;caret-color:var(--amber)}
-#msg{min-height:1.6em;margin:.8em 0 0}
-.link{background:none;border:0;padding:0;font:inherit;color:var(--dim);text-decoration:underline;cursor:pointer}
-.bar{height:6px;background:#2a2113;margin-top:1.4em}
-.bar i{display:block;height:100%;width:0;background:var(--amber);transition:width .4s}
-
-/* dosya ekranı */
-.wrap{max-width:1080px;margin:0 auto;padding:18px 18px 60px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:14px;padding-bottom:26px}
-.btn{background:transparent;border:1px solid var(--dim);color:var(--amber);font:inherit;padding:.35em .9em;cursor:pointer}
-.btn:hover{background:#2a2113}
-.layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
-.paper{position:relative;background:var(--paper);color:var(--ink);padding:34px 30px 30px;box-shadow:0 18px 40px rgba(0,0,0,.45);transform:rotate(-.4deg)}
-.paper::before{content:"Dosya KS-7/0817";position:absolute;top:-25px;left:26px;background:var(--paper);padding:3px 16px 0;font-size:13px;line-height:22px}
-.paper h1{font:700 clamp(1.5rem,4vw,2.1rem)/1.15 var(--mono);margin:0 0 .3em}
-.paper h2{font:700 1.05rem var(--mono);margin:1.6em 0 .6em}
-.paper p{margin:.5em 0}.paper .dim{color:#5b5640;font-size:14px;margin:0}
-.stamp{position:absolute;top:22px;right:20px;font:34px/1 var(--stamp);letter-spacing:.06em;color:var(--red);border:4px solid var(--red);padding:.15em .35em;transform:rotate(9deg);opacity:.88;mix-blend-mode:multiply}
-.paper h1{padding-right:195px}
-.fresh .stamp{animation:slam .45s .25s cubic-bezier(.2,.9,.3,1.2) both}
-@keyframes slam{from{transform:rotate(9deg) scale(2.6);opacity:0}to{transform:rotate(9deg) scale(1);opacity:.88}}
-.rd{font:inherit;border:0;padding:0 .15em;background:var(--bar);color:var(--bar);cursor:pointer;border-radius:1px;white-space:normal;text-align:left}
-.rd.open{background:#f2d95c;color:var(--ink);cursor:default}
-.files{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.files button{width:100%;text-align:left;font:inherit;background:transparent;border:1px solid var(--ink);color:var(--ink);padding:.5em .8em;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
-.files button:hover{background:rgba(0,0,0,.07)}
-.files button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
-#view{margin-top:14px;padding:12px 14px;border-left:4px solid var(--red);background:rgba(0,0,0,.06);min-height:6em}
-.side{display:grid;gap:22px}
-.card{background:var(--panel);border:1px solid #2a3a4b;padding:16px}
-.card h2{font-size:1rem;margin:0 0 10px}
-#radar{width:100%;height:auto;display:block}
-#red{display:block;margin:10px auto 6px;width:124px;height:124px;border-radius:50%;border:0;color:#fff;font:700 15px/1.2 var(--mono);cursor:pointer;
-background:radial-gradient(circle at 35% 30%,#ff5a5d,#c92a2d 55%,#8f1d20);box-shadow:0 8px 0 #5c1214,0 0 0 8px #231a10,0 0 0 10px var(--dim);transition:transform .08s,box-shadow .08s}
-#red:active{transform:translateY(6px);box-shadow:0 2px 0 #5c1214,0 0 0 8px #231a10,0 0 0 10px var(--dim)}
-.termbox{margin-top:22px;background:#0a1017;border:1px solid #2a3a4b;padding:14px 16px}
-#out{height:190px;overflow:auto;font-size:14px;margin-bottom:8px}
-#out div{white-space:pre-wrap}.cmd{color:var(--dim)}
-.foot{margin:26px 0 0;color:var(--dim);font-size:13px}
-.joke{position:fixed;inset:0;z-index:40;background:rgba(5,8,12,.94);display:grid;place-items:center;padding:24px;text-align:center}
-.joke h2{font:clamp(2.2rem,8vw,4rem)/1.05 var(--stamp);color:var(--red);margin:0 0 .4em}
-.joke p{max-width:34em;margin:.4em auto}
-#mx{position:fixed;inset:0;z-index:30;pointer-events:none;opacity:.8}
-@media(max-width:820px){.layout{grid-template-columns:1fr}}
-@media(max-width:560px){.stamp{position:static;display:inline-block;margin-bottom:14px}.paper h1{padding-right:0}.paper{padding:26px 20px}}
-@media(prefers-reduced-motion:reduce){body.alarm{animation:none;background:#3a0d0f}.fresh .stamp{animation:none}#red,.bar i{transition:none}}
+:root{--bg:#090c11;--s1:#0e131a;--s2:#151c26;--ln:#1f2935;--tx:#d6dce5;--dim:#8493a5;--ac:#6aa6ff;--red:#e05252;--ocr:#cfa850;--ok:#4fbf8f;
+--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.6 var(--sans);min-height:100vh}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.mono{font-family:var(--mono)}.dim{color:var(--dim)}
+.screen{display:none}.screen.on{display:block;animation:fi .4s ease-out}
+@keyframes fi{from{opacity:0}}
+.band{background:#2a1214;color:#f0a8a8;font:500 12px/1 var(--mono);letter-spacing:.14em;text-align:center;padding:8px 12px;border-bottom:1px solid #4a1f22;position:relative;z-index:3}
+#gate{position:relative;min-height:100vh;overflow:hidden}
+#gbg{position:fixed;inset:0;width:100%;height:100%}
+.gwrap{position:relative;z-index:2;max-width:470px;margin:0 0 0 clamp(24px,8vw,120px);padding:15vh 24px 90px 0}
+.mark{display:flex;align-items:center;gap:14px;color:var(--ac)}
+.mark b{font:600 22px/1 var(--sans);letter-spacing:.34em;color:var(--tx)}
+.gwrap h1{font:500 clamp(1.6rem,3.2vw,2.2rem)/1.2 var(--sans);margin:38px 0 10px}
+.gwrap p.i{color:var(--dim);margin:0 0 28px;max-width:40ch}
+label.f{display:block;font:500 13px var(--mono);color:var(--dim);margin-bottom:8px}
+.fld{display:flex;gap:10px}
+.fld input,.sx{flex:1;min-width:0;background:rgba(14,19,26,.9);border:1px solid var(--ln);padding:12px 14px;border-radius:2px;font-family:var(--mono)}
+.fld input{letter-spacing:.2em}
+.fld input:focus,.sx:focus{border-color:var(--ac)}
+.pri{background:var(--ac);color:#06101f;border:0;padding:0 22px;font-weight:600;cursor:pointer;border-radius:2px}
+.pri:hover{background:#8bbaff}
+#gmsg{min-height:1.6em;margin:14px 0 0;font:13px/1.5 var(--mono)}
+.gfoot{position:fixed;left:0;right:0;bottom:0;z-index:2;padding:16px clamp(24px,8vw,120px);font:12px/1.6 var(--mono);color:var(--dim)}
+.app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100vh - 29px)}
+.rail{border-right:1px solid var(--ln);background:var(--s1);padding:20px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:calc(100vh - 29px)}
+.rail .mark{padding:0 8px 22px}.rail .mark b{font-size:15px}
+.nav{display:block;text-align:left;background:none;border:0;border-left:2px solid transparent;padding:10px 12px;border-radius:2px;color:var(--dim);cursor:pointer}
+.nav:hover{background:var(--s2);color:var(--tx)}
+.nav[aria-current=page]{background:var(--s2);color:var(--tx);border-left-color:var(--ac)}
+main{padding:20px clamp(16px,3vw,36px) 50px;min-width:0}
+.top{display:flex;gap:20px;flex-wrap:wrap;align-items:center;padding-bottom:14px;margin-bottom:22px;border-bottom:1px solid var(--ln);font:12px var(--mono);color:var(--dim)}
+.ghost{background:none;border:1px solid var(--ln);padding:6px 12px;border-radius:2px;cursor:pointer;color:var(--tx)}
+.ghost:hover{border-color:var(--dim)}.top .ghost{margin-left:auto}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.head h2{font:500 1.5rem/1.2 var(--sans);margin:0}.head>span{font:13px var(--mono);color:var(--dim)}
+.view{display:none}.view.on{display:block}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--ln);border:1px solid var(--ln);margin-bottom:18px}
+.tile{background:var(--s1);padding:14px 16px}.tile small{display:block;color:var(--dim);font-size:13px}
+.tile b{font:500 1.65rem/1.4 var(--mono)}
+.seg{display:flex;gap:3px;margin-top:6px}.seg i{width:24px;height:4px;background:var(--ocr)}.seg i.o{background:var(--s2)}
+.grid2,.files,.gl{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:start}
+.files{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.panel{background:var(--s1);border:1px solid var(--ln)}
+.ph{padding:12px 16px;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between;font-weight:500;font-size:14px}
+.ph span{font:12px var(--mono);color:var(--dim)}
+#globe{width:100%;aspect-ratio:1/.82;display:block}
+.sr{padding:12px 16px;border-bottom:1px solid var(--ln);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+.sr:last-child{border-bottom:0}.sr .meter{grid-column:1/-1}
+.meter{height:6px;background:var(--s2)}.meter i{display:block;height:100%;width:calc(var(--v)*1%);background:var(--c)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font:500 12px var(--mono);color:var(--dim);text-align:left;padding:10px 14px;border-bottom:1px solid var(--ln);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--ln);vertical-align:top}
+#ftb tr{cursor:pointer}#ftb tr:hover,#ftb tr[aria-selected=true]{background:var(--s2)}
+.lk{background:none;border:0;padding:0;font-family:var(--mono);color:var(--ac);cursor:pointer;text-align:left}
+.chip{font:500 11px var(--mono);padding:2px 8px;border:1px solid currentColor;border-radius:2px;white-space:nowrap}
+.k{color:#8fb2e8}.g{color:var(--ocr)}.c{color:var(--red)}
+.flt,#nl{display:flex;gap:6px;flex-wrap:wrap}.flt{margin-bottom:14px}.flt .sx{flex:none;width:min(260px,100%);margin-left:auto;padding:7px 12px}
+.flt button,#nl button{background:none;border:1px solid var(--ln);padding:6px 12px;border-radius:2px;cursor:pointer;color:var(--dim)}
+.flt button:hover,#nl button:hover{color:var(--tx)}
+.flt button[aria-pressed=true],#nl button[aria-pressed=true]{border-color:var(--ac);color:var(--tx);background:var(--s2)}
+#det,#nd{padding:18px;min-height:200px}
+#det h3,#nd h3{margin:0 0 10px;font:500 1.05rem/1.3 var(--sans)}
+#det p,#nd p{margin:0 0 12px}.meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:13px}
+.rx{font:inherit;border:0;padding:0 .2em;background:#2c3746;color:#2c3746;cursor:pointer;border-radius:1px;white-space:normal;text-align:left}
+.rx.open{background:transparent;color:var(--ocr);outline:1px dashed #5a4a20;cursor:default}
+.doc{max-width:76ch;padding:8px 30px 28px}.doc h3{margin:1.7em 0 .4em;font:500 1.05rem var(--sans)}
+.doc ul,.doc ol{padding-left:1.2em;margin:.3em 0}.doc li{margin:.5em 0}.doc p{margin:.5em 0}
+#gr{width:100%;aspect-ratio:1/.72;display:block;cursor:pointer}
+#nl{padding:14px 16px;border-bottom:1px solid var(--ln)}
+.lst{margin:0 0 12px;padding-left:1.2em;font-size:14px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--ln);font:12px var(--mono);color:var(--dim)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.foot{margin:28px 0 0;font:12px var(--mono);color:var(--dim)}
+@media(max-width:900px){.app{grid-template-columns:1fr}.rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--ln);padding:8px}.rail .mark{display:none}.grid2,.files,.gl{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.flt .sx{margin-left:0}}
+@media(prefers-reduced-motion:reduce){.screen.on{animation:none}}
+@media print{.band,.rail,.top,.head button,.foot{display:none!important}.app{display:block}body{background:#fff;color:#111}.panel{background:#fff;border-color:#bbb}.dim,.head>span{color:#555}}
 </style>
 </head>
 <body>
-<noscript><p style="padding:24px">JavaScript kapalıysa sır saklanamaz. Aç da gir.</p></noscript>
-<canvas id="mx" hidden></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="em" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="16" cy="16" r="13"/><ellipse cx="16" cy="16" rx="5.5" ry="13"/><path d="M3 16h26M5 9.5h22M5 22.5h22"/></g></symbol></svg>
+<noscript><p style="padding:24px">Bu sayfa JavaScript gerektirir.</p></noscript>
 
-<!-- 1) KİLİT EKRANI -->
-<section id="lock" class="screen on"><div class="tw">
-  <div id="boot"></div>
-  <form id="lockform" class="prompt" autocomplete="off">
-    <label for="pw">şifre&gt;</label>
-    <input id="pw" type="password" autocomplete="off" spellcheck="false" autofocus>
-  </form>
-  <p id="msg" role="status" aria-live="polite"></p>
-  <button id="hint" class="link" type="button">ipucu</button>
-</div></section>
-
-<!-- 2) KİMLİK TARAMA -->
-<section id="scan" class="screen"><div class="tw">
-  <div id="scanlog"></div>
-  <div class="bar"><i id="bar"></i></div>
-</div></section>
-
-<!-- 3) GİZLİ DOSYA -->
-<section id="file" class="screen"><div class="wrap">
-  <div class="top">
-    <span>KS-7 güvenli terminal, yetki seviyesi 9/9</span>
-    <span>Oturum <b id="clock">10:00</b> <button id="logout" class="btn" type="button">Oturumu kapat</button></span>
-  </div>
-
-  <div class="layout">
-    <article class="paper">
-      <div class="stamp">ÇOK GİZLİ</div>
-      <h1>Operasyon Sessiz Simit</h1>
-      <p class="dim">Hazırlayan: Gizli Birim 7</p>
-      <p class="dim">Dağıtım: yalnızca sen</p>
-
-      <p style="margin-top:1.2em">Bu belgeyi okuyan kişi artık
-        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">çay molasının 15:30’da olduğunu</button>
-        bilmektedir. Operasyonun amacı
-        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">bütün bisküvileri</button>
-        güvence altına almak ve
-        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">kimseye söylememektir</button>.
-        Aksini iddia eden herkes
-        <button class="rd" aria-label="Gizlenmiş metin, açmak için etkinleştir">muhtemelen aç</button>.</p>
-      <p class="dim">Siyah çubuklara tıklayarak gizli kısımları açabilirsin.</p>
-
-      <h2>Dosyalar</h2>
-      <ul class="files" id="files"></ul>
-      <div id="view" aria-live="polite">Bir dosya seç. Hepsi gizli, ama bazıları daha gizli.</div>
-    </article>
-
-    <div class="side">
-      <section class="card">
-        <h2>Canlı takip radarı</h2>
-        <canvas id="radar" width="480" height="480" role="img" aria-label="Kedi, simitçi, komşu teyze ve kargoyu gösteren şaka radarı"></canvas>
-      </section>
-      <section class="card" style="text-align:center">
-        <h2>Acil durum</h2>
-        <button id="red" type="button">ASLA<br>BASMA</button>
-        <p class="dim" style="margin:.6em 0 0;font-size:14px">Gerçekten. Hiçbir şey olmaz. Basma.</p>
-      </section>
-    </div>
-  </div>
-
-  <section class="termbox">
-    <div id="out" aria-live="polite"></div>
-    <form id="tform" class="prompt" style="margin:0" autocomplete="off">
-      <label for="tin">ks7&gt;</label>
-      <input id="tin" type="text" autocomplete="off" spellcheck="false" aria-label="Komut">
+<section id="gate" class="screen on">
+  <div class="band">GİZLİ // YALNIZCA YETKİLİ PERSONEL</div>
+  <canvas id="gbg" aria-hidden="true"></canvas>
+  <div class="gwrap">
+    <div class="mark"><svg width="34" height="34"><use href="#em"/></svg><b>MERİDYEN</b></div>
+    <h1 id="gh">Güvenli erişim noktası</h1>
+    <p class="i">Bu sisteme yalnızca yetkili personel erişebilir. Tüm erişimler kaydedilir.</p>
+    <form id="gform" autocomplete="off">
+      <label class="f" for="pw">Erişim anahtarı</label>
+      <div class="fld"><input id="pw" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus><button class="pri" type="submit">Oturum aç</button></div>
     </form>
-  </section>
-
-  <p class="foot">Bu site tamamen şaka. İçinde gizli hiçbir şey yok; şifre bile kodun içinde duruyor.</p>
-</div></section>
-
-<!-- Kırmızı düğme sonrası -->
-<div id="joke" class="joke" hidden role="dialog" aria-modal="true" aria-labelledby="jt">
-  <div>
-    <h2 id="jt">Dünya kurtarıldı.</h2>
-    <p>Şaka. Düğmenin hiçbir işlevi yok. Ama bu odaya giren herkes basıyor.</p>
-    <p class="dim">Bu tarayıcıdan düğmeye basılma sayısı: <b id="cnt">0</b></p>
-    <p><button id="jokeok" class="btn" type="button">Tamam, kimseye söylemem</button></p>
+    <p id="gmsg" role="status" aria-live="polite"></p>
   </div>
-</div>
+  <div class="gfoot">Meridyen Analiz ve Değerlendirme Direktörlüğü<br>Kurgusal bir tasarım çalışmasıdır.</div>
+</section>
+
+<section id="app" class="screen">
+  <div class="band">GİZLİ // MERİDYEN // YALNIZCA YETKİLİ PERSONEL</div>
+  <div class="app">
+    <nav class="rail" aria-label="Ana menü">
+      <div class="mark"><svg width="28" height="28"><use href="#em"/></svg><b>MERİDYEN</b></div>
+      <button class="nav" data-v="ov" aria-current="page">Genel bakış</button>
+      <button class="nav" data-v="br">Günlük brifing</button>
+      <button class="nav" data-v="fl">Dosyalar</button>
+      <button class="nav" data-v="gr">Bağlantı analizi</button>
+      <button class="nav" data-v="au">Denetim günlüğü</button>
+    </nav>
+    <main>
+      <div class="top"><span>Oturum <b id="sid"></b></span><span>Yetki: Seviye 9</span><span id="utc"></span><button id="logout" class="ghost" type="button">Oturumu kapat</button></div>
+
+      <section class="view on" id="v-ov">
+        <div class="head"><h2>Genel bakış</h2><span>17 Kasım 2026</span></div>
+        <div class="tiles">
+          <div class="tile"><small>Aktif operasyon</small><b>14</b></div>
+          <div class="tile"><small>İzlenen kaynak</small><b>3.208</b></div>
+          <div class="tile"><small>Bekleyen analiz</small><b>47</b></div>
+          <div class="tile"><small>Genel tehdit düzeyi</small><b style="font-size:1.2rem;line-height:2">Yükselmiş</b><div class="seg"><i></i><i></i><i></i><i class="o"></i></div></div>
+        </div>
+        <div class="grid2">
+          <div class="panel"><div class="ph">Küresel gözlem ağı<span>10 istasyon</span></div><canvas id="globe" role="img" aria-label="İstasyonları ve veri hatlarını gösteren dönen küre"></canvas></div>
+          <div class="panel"><div class="ph">Sektör düzeyleri<span>Güncelleme 06:00 UTC</span></div><div id="thr"></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="v-br">
+        <div class="head"><h2>Günlük brifing</h2><button class="ghost" type="button" onclick="print()">Yazdır / PDF</button></div>
+        <article class="panel doc">
+          <p class="dim mono" style="font-size:13px;margin-top:20px">17 Kasım 2026, 06:00 UTC. Hazırlayan: Analiz Dairesi. Dağıtım: Seviye 9.</p>
+          <h3>Ana değerlendirme</h3>
+          <p>Doğu Koridoru’ndaki faaliyet yoğunluğu son 72 saatte belirgin biçimde arttı. Mevcut veriler, lojistik ve finansal hareketlerin eş zamanlı hazırlandığına işaret ediyor. Genel tehdit düzeyi “Yükselmiş” olarak korunuyor. Sektör 2 için “Kritik” eşiği izleniyor.</p>
+          <h3>Önemli gelişmeler</h3>
+          <ul>
+            <li>Sektör 3’teki üç istasyondan alınan şifreli trafik tek bir aracı sunucuya bağlandı (MRD-0412).</li>
+            <li>K-07 ağ geçidine yönelik yetkisiz erişim girişimleri engellendi, kimlik bilgileri yenilendi (MRD-0349).</li>
+            <li>Kuzey Hattı’ndaki saha bağlantısı iki kez kesildi, nedeni inceleniyor (MRD-0361).</li>
+            <li>Kuzgun-2 uydusunun kapsama oranı yüzde 98 ile hedefin üzerinde seyrediyor (MRD-0377).</li>
+          </ul>
+          <h3>Değerlendirme ve öneriler</h3>
+          <ol>
+            <li>Sektör 2 için gözlem sıklığı artırılmalı. Merkez aktör KARAYEL ile bağlantılı hesaplar öncelikli izlenmeli.</li>
+            <li>K-07 ağ geçidi için bağımsız bir güvenlik incelemesi başlatılmalı.</li>
+            <li>Kuzey Hattı’ndaki saha bağlantısı için yedek kanal devreye alınmalı.</li>
+          </ol>
+          <p class="dim" style="margin-top:1.6em">Güven düzeyi: Orta. Kaynak çeşitliliği sınırlı, saha doğrulaması bekleniyor.</p>
+        </article>
+      </section>
+
+      <section class="view" id="v-fl">
+        <div class="head"><h2>Dosyalar</h2></div>
+        <div class="flt" id="flt">
+          <button type="button" data-c="" aria-pressed="true">Tümü</button><button type="button" data-c="KISITLI" aria-pressed="false">Kısıtlı</button><button type="button" data-c="GİZLİ" aria-pressed="false">Gizli</button><button type="button" data-c="ÇOK GİZLİ" aria-pressed="false">Çok gizli</button>
+          <input id="q" class="sx" type="search" placeholder="Kimlik veya başlıkta ara" aria-label="Dosyalarda ara">
+        </div>
+        <div class="files">
+          <div class="panel" style="overflow-x:auto"><table><thead><tr><th>Kimlik</th><th>Başlık</th><th>Sınıf</th><th>Tarih</th><th>Durum</th></tr></thead><tbody id="ftb"></tbody></table></div>
+          <div class="panel" id="det" aria-live="polite"><p class="dim">Ayrıntıları görmek için bir dosya seçin.</p></div>
+        </div>
+      </section>
+
+      <section class="view" id="v-gr">
+        <div class="head"><h2>Bağlantı analizi</h2><span>Kaynak ağı: KARAYEL</span></div>
+        <div class="gl">
+          <div class="panel"><canvas id="gr" role="img" aria-label="Aktörler, hesaplar ve konumlar arasındaki bağlantı grafiği. Varlık listesinden de seçebilirsiniz."></canvas><div class="legend" id="lg"></div></div>
+          <div class="panel"><div id="nl"></div><div id="nd" aria-live="polite"></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="v-au">
+        <div class="head"><h2>Denetim günlüğü</h2><span>Bu oturumdaki tüm eylemler</span></div>
+        <div class="panel" style="overflow-x:auto"><table><thead><tr><th>Zaman (UTC)</th><th>Oturum</th><th>Eylem</th></tr></thead><tbody id="atb"></tbody></table></div>
+      </section>
+
+      <p class="foot">Meridyen Analiz ve Değerlendirme Direktörlüğü. Kurgusal bir tasarım çalışmasıdır, gerçek bir kurum veya veri içermez.</p>
+    </main>
+  </div>
+</section>
 
 <script>
-/* ŞİFREYİ DEĞİŞTİRMEK İÇİN SADECE ALTTAKİ SATIRI DÜZENLE (küçük harf yaz) */
-const SIFRE = "claude";
+/* ŞİFRE: tırnakların içindeki yazıyı değiştir. Büyük/küçük harf fark eder. */
+const SIFRE="U23Hjs90";
 
-const $ = s => document.querySelector(s);
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-let tries = 0, busy = false, left = 600, timer = 0, bid = 0;
+const $=s=>document.querySelector(s),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const utc=()=>new Date().toISOString().slice(11,19);
+let sid="",busy=false,idle=0,timer=0,view="ov",flt="",gsel=0;
+const show=id=>{document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));scrollTo(0,0)};
+const msg=(t,bad=true)=>{const m=$("#gmsg");m.style.color=bad?"var(--red)":"var(--dim)";m.textContent=t};
 
-const show = id => { document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id)); scrollTo(0, 0); };
-const log = (box, text, cls) => { const p = document.createElement("div"); if (cls) p.className = cls; p.textContent = text; box.appendChild(p); return p; };
-async function typeLine(box, text, cls, ms = reduce ? 0 : 12) {
-  const p = log(box, "", cls);
-  for (const ch of text) { p.textContent += ch; if (ms) await sleep(ms); }
-}
+/* ---------- Veri ---------- */
+const FILES=[
+["MRD-0412","Sinyal kesişim analizi, Sektör 3","ÇOK GİZLİ","14.11.2026","Açık","Sektör 3’teki üç istasyondan alınan şifreli trafik, [[tek bir aracı sunucu üzerinden yönlendirildiği]] için aynı kaynağa bağlandı. Analiz ekibi [[kaynağın 9 Kasım’dan beri etkin olduğunu]] değerlendiriyor. Ek doğrulama bekleniyor."],
+["MRD-0398","Lojistik ağı haritalaması","GİZLİ","11.11.2026","Gözden geçirmede","Doğu Koridoru’ndaki tedarik hattı, [[beş ara depo]] ve iki ana geçiş noktası üzerinden çalışıyor. Haftalık hacim [[son ay içinde yüzde 18 arttı]]. Saha doğrulaması planlandı."],
+["MRD-0377","Uydu görüntü arşivi, Kutup Hattı","KISITLI","08.11.2026","Kapalı","Kuzgun-2 uydusunun Kutup Hattı geçişlerinden elde edilen görüntüler arşivlendi. Kapsama oranı yüzde 98, bulut kaynaklı veri kaybı [[yüzde 4 ile sınırlı kaldı]]."],
+["MRD-0361","Saha bağlantı raporu, Kuzey Hattı","GİZLİ","03.11.2026","Açık","Kuzey Hattı’ndaki saha ekibiyle güvenli kanal [[iki kez kesintiye uğradı]]. Nedeni altyapı kaynaklı görünüyor, ancak [[müdahale ihtimali dışlanmadı]]."],
+["MRD-0349","Sızma girişimi, ağ geçidi K-07","ÇOK GİZLİ","29.10.2026","Açık","K-07 ağ geçidine yönelik yetkisiz erişim girişimleri engellendi. Saldırı kalıbı [[daha önce Sektör 2’de görülen araç setiyle]] örtüşüyor. Tüm kimlik bilgileri yenilendi."],
+["MRD-0322","Üç aylık kaynak değerlendirmesi","KISITLI","21.10.2026","Kapalı","İzlenen kaynak sayısı çeyrek boyunca yüzde 11 arttı. Analiz kuyruğundaki ortalama bekleme süresi [[3,4 güne düştü]]. Bir sonraki değerlendirme Ocak’ta yapılacak."]];
+const CLS={"KISITLI":"k","GİZLİ":"g","ÇOK GİZLİ":"c"};
+const TH=[["Sektör 1","Kuzey Hattı",62,"Yüksek","#cfa850"],["Sektör 2","Doğu Koridoru",81,"Kritik","#e05252"],["Sektör 3","Batı Geçidi",38,"Orta","#8fb2e8"],
+["Sektör 4","Güney Havzası",24,"Düşük","#4fbf8f"],["Sektör 5","Kutup Hattı",17,"Düşük","#4fbf8f"],["Sektör 6","Okyanus Ağı",55,"Yüksek","#cfa850"]];
+const TC={"Kişi":"#6aa6ff","Kuruluş":"#cfa850","Hesap":"#4fbf8f","Konum":"#e07a52","Cihaz":"#a79bd8"};
+const NODES=[
+["KARAYEL","Kişi",.50,.46,"Ağın merkez aktörü. Üç hesap ve iki kuruluşla doğrudan bağlantılı. Hareketliliği son 30 günde belirgin arttı.","MRD-0412"],
+["Şirket-3","Kuruluş",.22,.24,"Doğu Koridoru’nda faaliyet gösteren ön şirket. Gelirinin büyük kısmı tek bir hesaptan geliyor.","MRD-0398"],
+["Şirket-8","Kuruluş",.78,.22,"Lojistik hizmeti veren ikinci kuruluş. Sevkiyat kayıtları ile mali kayıtlar uyuşmuyor.","MRD-0398"],
+["Hesap-7","Hesap",.30,.64,"Şirket-3 ile Aracı-2 arasındaki ödemeleri taşıyor. Hacim son ay içinde yüzde 18 arttı.","MRD-0398"],
+["Hesap-12","Hesap",.70,.68,"Şirket-8’e bağlı. Düzensiz aralıklarla yüksek tutarlı transferler yapılıyor.","MRD-0322"],
+["Aracı-2","Kişi",.11,.50,"Şirket-3 ile saha arasındaki iletişimi sağlıyor. Güvenli kanal kullanımı sınırlı.","MRD-0361"],
+["Depo-5","Konum",.46,.88,"Sevkiyatların ara durağı. Uydu görüntülerinde hareketlilik gözlendi.","MRD-0377"],
+["Kanal-K9","Cihaz",.89,.46,"Şifreli iletişimde kullanılan cihaz grubu. K-07 ağ geçidi saldırısıyla aynı araç setine bağlı.","MRD-0349"],
+["Aracı-4","Kişi",.58,.12,"Merkez aktör ile Şirket-8 arasındaki mesajları aktarıyor. Kimliği kısmen doğrulandı.","MRD-0412"],
+["Depo-2","Konum",.87,.88,"Hesap-12 ödemelerinin karşılığı sevkiyatların çıkış noktası. Saha doğrulaması bekleniyor.","MRD-0322"]];
+const EDGES=[[0,1,"finans"],[0,2,"finans"],[0,3,"finans"],[0,8,"iletişim"],[0,7,"iletişim"],[1,5,"iletişim"],[3,5,"finans"],[2,4,"finans"],[4,9,"lojistik"],[6,3,"lojistik"],[0,6,"lojistik"],[8,2,"iletişim"],[7,4,"iletişim"]];
 
-/* ---------- Açılış yazıları ---------- */
-async function boot(first) {
-  const my = ++bid, b = $("#boot"); b.textContent = "";
-  const L = first
-    ? ["KS-7 GÜVENLİ TERMİNAL v0.0.1 (şaka sürümü)",
-       "Bağlantı şifrelendi: AES-4096. Böyle bir şey yok ama kulağa hoş geliyor.",
-       "Yetkisiz erişim yasaktır. Ayrıca komiktir.",
-       "Devam etmek için şifre girin."]
-    : ["Terminal yeniden başlatıldı.", "Şifre girin."];
-  for (const t of L) { await typeLine(b, t); if (my !== bid) return; }
-  $("#pw").focus();
-}
-
-/* ---------- Şifre kontrolü ---------- */
-const WRONG = ["Erişim reddedildi.", "Yanlış. Bir daha dene, kimse bakmıyor.", "Bu, son uyarıya çok yakın bir şey."];
-const EGG = {
-  "1234": "Şifren bu kadar kolay olsaydı bu site gizli olmazdı.",
-  "123456": "Şifren bu kadar kolay olsaydı bu site gizli olmazdı.",
-  "admin": "Admin çay almaya gitti.",
-  "şifre": "Çok yakın. Hayır, aslında çok uzak.",
-  "sifre": "Çok yakın. Hayır, aslında çok uzak.",
-  "password": "İngilizce denemek zekice. Yine de olmadı."
-};
-
-$("#hint").addEventListener("click", () => {
-  $("#msg").className = ""; $("#msg").textContent = "İpucu: bu siteyi yazan yapay zekânın adı, küçük harflerle.";
-  $("#pw").focus();
-});
-
-$("#lockform").addEventListener("submit", e => {
-  e.preventDefault(); if (busy) return;
-  const v = $("#pw").value.trim().toLowerCase(); $("#pw").value = "";
-  if (!v) return;
-  if (v === SIFRE) return unlock();
-  tries++;
-  if (tries >= 3) return alarm();
-  const m = $("#msg"); m.className = "bad";
-  m.textContent = (Object.hasOwn(EGG, v) ? EGG[v] : WRONG[tries - 1]) + " Kalan hak: " + (3 - tries);
-});
-
-async function alarm() {
-  busy = true; bid++; document.body.classList.add("alarm"); $("#pw").disabled = true;
-  const b = $("#boot"); b.textContent = ""; $("#msg").textContent = "";
-  const L = [["ALARM! 3 yanlış deneme.", "bad"], ["İz sürme başlatıldı...", ""], ["Konum tespit ediliyor...", ""],
-    ["Konum bulundu: şu an oturduğun yer.", "bad"], ["Kamera açılıyor... şaka, açılmıyor. Yine de gülümse.", ""]];
-  for (const [t, c] of L) { await typeLine(b, t, c); await sleep(reduce ? 100 : 350); }
-  for (let i = 10; i > 0; i--) { $("#msg").className = ""; $("#msg").textContent = "Sistem sakinleşiyor: " + i; await sleep(1000); }
-  document.body.classList.remove("alarm");
-  tries = 0; busy = false; $("#pw").disabled = false; $("#msg").textContent = ""; boot(false);
-}
-
-/* ---------- Kimlik tarama ---------- */
-async function unlock() {
-  busy = true; $("#pw").disabled = true; $("#msg").textContent = "";
-  show("scan");
-  const s = $("#scanlog"), bar = $("#bar"); s.textContent = ""; bar.style.width = "0";
-  const steps = ["Şifre kabul edildi.", "Retina taranıyor...", "Parmak izi doğrulanıyor...",
-    "DNA örneği analiz ediliyor (kullandığın bardaktan)...", "Kimlik doğrulandı: SEN. Yetki seviyesi 9/9."];
-  for (let i = 0; i < steps.length; i++) {
-    await typeLine(s, steps[i]);
-    bar.style.width = ((i + 1) / steps.length * 100) + "%";
-    await sleep(reduce ? 100 : 450);
+/* ---------- Küre ---------- */
+function makeGlobe(c,layout,labels){
+  const x=c.getContext("2d"),TAU=Math.PI*2,T=.38,ct=Math.cos(T),st=Math.sin(T);
+  let W=0,H=0,dpr=1,raf=0,rot=.6,last=0,run=false,cr=1,sr=0;
+  const vec=(la,lo)=>{la*=Math.PI/180;lo*=Math.PI/180;return[Math.cos(la)*Math.sin(lo),Math.sin(la),Math.cos(la)*Math.cos(lo)]};
+  const N=[[41,29],[52,13],[35,139],[-1,37],[38,-77],[-23,-46],[55,37],[28,77],[-33,151],[64,-21]].map(p=>vec(p[0],p[1]));
+  const ARC=[[0,4],[1,2],[3,7],[5,6],[8,9],[4,2],[6,3]].map(([a,b])=>Array.from({length:41},(_,i)=>{
+    const t=i/40,v=N[a].map((n,k)=>n*(1-t)+N[b][k]*t),h=(1+.22*Math.sin(Math.PI*t))/Math.hypot(...v);return v.map(n=>n*h)}));
+  let s=7;const rnd=()=>(s=s*16807%2147483647)/2147483647;
+  const PTS=Array.from({length:650},()=>{const u=rnd()*2-1,t=rnd()*TAU,r=Math.sqrt(1-u*u);return[r*Math.sin(t),u,r*Math.cos(t)]});
+  const GR=[];
+  for(const la of[-60,-30,0,30,60])GR.push(Array.from({length:61},(_,i)=>vec(la,i*6)));
+  for(let lo=0;lo<360;lo+=30)GR.push(Array.from({length:31},(_,i)=>vec(-90+i*6,lo)));
+  const rv=v=>{const a=v[0]*cr+v[2]*sr,z=-v[0]*sr+v[2]*cr;return[a,v[1]*ct-z*st,v[1]*st+z*ct]};
+  function size(){const r=c.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;c.width=Math.max(1,W*dpr);c.height=Math.max(1,H*dpr)}
+  function draw(t){
+    cr=Math.cos(rot);sr=Math.sin(rot);
+    const[cx,cy,R]=layout(W,H),P=v=>{const q=rv(v);return[cx+q[0]*R,cy-q[1]*R,q[2]]};
+    x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,W,H);
+    const g=x.createRadialGradient(cx,cy,R*.7,cx,cy,R*1.3);g.addColorStop(0,"rgba(106,166,255,.12)");g.addColorStop(1,"rgba(106,166,255,0)");
+    x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.beginPath();x.arc(cx,cy,R,0,TAU);x.fillStyle="rgba(14,19,26,.72)";x.fill();x.strokeStyle="rgba(106,166,255,.4)";x.lineWidth=1;x.stroke();
+    const fr=new Path2D(),bk=new Path2D();
+    for(const L of GR){let p=P(L[0]);for(let i=1;i<L.length;i++){const q=P(L[i]),d=p[2]+q[2]>0?fr:bk;d.moveTo(p[0],p[1]);d.lineTo(q[0],q[1]);p=q}}
+    x.strokeStyle="rgba(106,166,255,.2)";x.stroke(fr);x.strokeStyle="rgba(106,166,255,.05)";x.stroke(bk);
+    x.fillStyle="#9cc2ff";
+    for(const v of PTS){const q=P(v);if(q[2]>0){x.globalAlpha=.15+.6*q[2];x.fillRect(q[0],q[1],1.4,1.4)}}
+    x.globalAlpha=1;
+    ARC.forEach((A,i)=>{
+      const pts=A.map(P),pa=new Path2D();
+      for(let k=1;k<pts.length;k++)if(pts[k][2]>0&&pts[k-1][2]>0){pa.moveTo(pts[k-1][0],pts[k-1][1]);pa.lineTo(pts[k][0],pts[k][1])}
+      x.strokeStyle="rgba(106,166,255,.45)";x.lineWidth=1.2;x.stroke(pa);
+      if(!reduce){const q=pts[Math.floor(((t*.00012+i*.21)%1)*40)];if(q[2]>0){x.fillStyle="#e4eeff";x.beginPath();x.arc(q[0],q[1],2.6,0,TAU);x.fill()}}
+    });
+    x.font="10px 'IBM Plex Mono',monospace";
+    N.forEach((v,i)=>{const q=P(v);if(q[2]>.05){x.fillStyle="#6aa6ff";x.beginPath();x.arc(q[0],q[1],3,0,TAU);x.fill();
+      x.strokeStyle="rgba(106,166,255,.35)";x.beginPath();x.arc(q[0],q[1],7,0,TAU);x.stroke();
+      if(labels){x.fillStyle="#8493a5";x.fillText("K-"+String(i+1).padStart(2,"0"),q[0]+11,q[1]+3)}}});
   }
-  show("file"); $("#file").classList.add("fresh");
-  startSession(); radar.start();
-  busy = false; $("#pw").disabled = false; $("#tin").focus();
+  function loop(t){rot+=Math.min(50,t-last)*.00009;last=t;draw(t);raf=requestAnimationFrame(loop)}
+  addEventListener("resize",()=>{if(run){size();if(reduce)draw(0)}});
+  return{start(){run=true;cancelAnimationFrame(raf);size();if(reduce)draw(0);else{last=performance.now();raf=requestAnimationFrame(loop)}},stop(){run=false;cancelAnimationFrame(raf)}};
+}
+const gateGlobe=makeGlobe($("#gbg"),(W,H)=>W<800?[W/2,H*.8,Math.min(W*.62,H*.4)]:[W*.74,H*.52,Math.min(H*.5,W*.3)],false);
+const mainGlobe=makeGlobe($("#globe"),(W,H)=>[W/2,H/2,Math.min(W,H)*.44],true);
+
+/* ---------- Giriş ---------- */
+$("#gform").addEventListener("submit",async e=>{
+  e.preventDefault();if(busy)return;
+  const v=$("#pw").value.trim();$("#pw").value="";if(!v)return;
+  if(v!==SIFRE){msg("Erişim anahtarı geçersiz. Girişim kaydedildi.");return}
+  busy=true;$("#gform").hidden=true;$("#gh").textContent="Kimlik doğrulanıyor";msg("Oturum belirteci oluşturuluyor...",false);
+  const b=new Uint8Array(4);crypto.getRandomValues(b);const h=Array.from(b,n=>n.toString(16).padStart(2,"0")).join("").toUpperCase();
+  sid="S-"+h.slice(0,4)+"-"+h.slice(4);
+  await sleep(reduce?0:800);msg("Erişim onaylandı. Yetki seviyesi: 9",false);await sleep(reduce?0:700);
+  enter();
+});
+function enter(){
+  gateGlobe.stop();show("app");$("#sid").textContent=sid;$("#atb").textContent="";
+  audit("Erişim anahtarı doğrulandı");audit("Yetki profili yüklendi: Seviye 9");
+  setView("ov",true);idle=0;clearInterval(timer);
+  timer=setInterval(()=>{$("#utc").textContent=utc()+" UTC";if(++idle>900)lock("Oturum zaman aşımına uğradı. Yeniden kimlik doğrulaması gerekir.")},1000);
+  $("#utc").textContent=utc()+" UTC";
+}
+function lock(note){
+  clearInterval(timer);mainGlobe.stop();busy=false;
+  $("#gform").hidden=false;$("#gh").textContent="Güvenli erişim noktası";
+  show("gate");gateGlobe.start();msg(note||"",false);$("#pw").focus();
+}
+$("#logout").addEventListener("click",()=>lock("Oturum kapatıldı."));
+["pointerdown","keydown"].forEach(ev=>addEventListener(ev,()=>{idle=0}));
+
+/* ---------- Görünümler ---------- */
+const NAMES={ov:"Genel bakış",br:"Günlük brifing",fl:"Dosyalar",gr:"Bağlantı analizi",au:"Denetim günlüğü"};
+function setView(v,quiet){
+  view=v;document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id==="v-"+v));
+  document.querySelectorAll(".nav").forEach(b=>b.dataset.v===v?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current"));
+  v==="ov"?mainGlobe.start():mainGlobe.stop();
+  if(v==="gr")gsize();
+  if(!quiet)audit("Görünüm açıldı: "+NAMES[v]);
+  scrollTo(0,0);
+}
+document.querySelectorAll(".nav").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.v)));
+function audit(act){
+  const tb=$("#atb");tb.insertAdjacentHTML("afterbegin",`<tr><td class="mono dim">${utc()}</td><td class="mono">${sid}</td><td>${act}</td></tr>`);
+  while(tb.rows.length>200)tb.deleteRow(-1);
 }
 
-function lock(note) {
-  clearInterval(timer); radar.stop(); $("#file").classList.remove("fresh");
-  tries = 0; show("lock"); boot(false);
-  const m = $("#msg"); m.className = ""; m.textContent = note || "";
-}
+/* ---------- Genel bakış: sektörler ---------- */
+$("#thr").innerHTML=TH.map(t=>`<div class="sr"><span><b>${t[0]}</b> <span class="dim">${t[1]}</span></span><b style="color:${t[4]}">${t[3]}</b><div class="meter" style="--v:${t[2]};--c:${t[4]}"><i></i></div></div>`).join("");
 
-/* ---------- Oturum süresi ---------- */
-function tick() { $("#clock").textContent = String(Math.floor(left / 60)).padStart(2, "0") + ":" + String(left % 60).padStart(2, "0"); }
-function startSession() {
-  left = 600; clearInterval(timer); tick();
-  timer = setInterval(() => { left--; tick(); if (left <= 0) lock("Oturum zaman aşımına uğradı."); }, 1000);
-}
-["pointerdown", "keydown"].forEach(ev => addEventListener(ev, () => { left = 600; }));
-$("#logout").addEventListener("click", () => lock("Oturum kapatıldı."));
-
-/* ---------- Gizli dosyalar + karartmalar ---------- */
-const FILES = [
-  ["Operasyon Simit", "7/9", "Hedef: sabah 08:30’da sıcak simidi yakalamak. Yöntem: fırının önünde sessizce beklemek. Durum: başarılı. Susam sayısı: sayılamadı."],
-  ["Proje Kedi", "8/9", "Gözlem: kediler dünyayı zaten yönetiyor. Bizim görevimiz mama vermek ve itiraz etmemek. Ajanlar 14:00 ile 17:00 arasında uyuyor, rahatsız etmeyin."],
-  ["Olay 404", "5/9", "Pazartesi sabahı motivasyon bulunamadı. Son görüldüğü yer: cuma akşamı. Aramalar sürüyor, kahve takviyesi istendi."],
-  ["Protokol Çay", "9/9", "Çay bardağı asla yarım bırakılmaz. İstisna: ikinci çay. İkinci çaydan sonra üçüncü çay protokolü otomatik devreye girer."]
-];
-const list = $("#files");
-FILES.forEach((f, i) => {
-  const li = document.createElement("li"), b = document.createElement("button");
-  b.type = "button"; b.setAttribute("aria-pressed", "false");
-  b.innerHTML = "<span></span><span>Seviye " + f[1] + "</span>"; b.firstChild.textContent = f[0];
-  b.addEventListener("click", () => {
-    list.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
-    const v = $("#view"); v.textContent = ""; const h = document.createElement("b"); h.textContent = f[0] + " (açıldı)";
-    v.append(h, document.createElement("br"), f[2]);
+/* ---------- Dosyalar ---------- */
+function renderFiles(){
+  const q=$("#q").value.trim().toLowerCase(),tb=$("#ftb");tb.textContent="";
+  const rows=FILES.filter(f=>(!flt||f[2]===flt)&&(f[0]+" "+f[1]).toLowerCase().includes(q));
+  if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="dim">Eşleşen dosya yok. Filtreyi veya aramayı değiştirin.</td></tr>';return}
+  rows.forEach(f=>{
+    const tr=document.createElement("tr");tr.dataset.id=f[0];
+    tr.innerHTML=`<td><button class="lk" type="button">${f[0]}</button></td><td>${f[1]}</td><td><span class="chip ${CLS[f[2]]}">${f[2]}</span></td><td class="mono dim">${f[3]}</td><td>${f[4]}</td>`;
+    tr.addEventListener("click",()=>openFile(f));tb.appendChild(tr);
   });
-  li.appendChild(b); list.appendChild(li);
-});
-document.querySelectorAll(".rd").forEach(b => b.addEventListener("click", () => { b.classList.add("open"); b.removeAttribute("aria-label"); }));
-
-/* ---------- Radar ---------- */
-const radar = (() => {
-  const c = $("#radar"), x = c.getContext("2d"), S = c.width, R = S / 2 - 6, TAU = Math.PI * 2;
-  let a = 0, raf = 0;
-  const B = [["Kedi (şüpheli)", .55, 1.0], ["Simitçi", .8, 2.7], ["Komşu Teyze", .35, 4.2], ["Kargo (geç kalmış)", .85, 5.5]]
-    .map(([n, r, t]) => ({ n, r, t, v: reduce ? 1 : 0 }));
-  function draw() {
-    x.clearRect(0, 0, S, S); x.save(); x.translate(S / 2, S / 2);
-    x.strokeStyle = "rgba(255,179,71,.3)"; x.lineWidth = 1.5;
-    for (let i = 1; i <= 3; i++) { x.beginPath(); x.arc(0, 0, R * i / 3, 0, TAU); x.stroke(); }
-    x.beginPath(); x.moveTo(-R, 0); x.lineTo(R, 0); x.moveTo(0, -R); x.lineTo(0, R); x.stroke();
-    if (!reduce) for (let i = 0; i < 28; i++) {
-      x.strokeStyle = "rgba(255,179,71," + (.55 * (1 - i / 28)) + ")"; x.beginPath(); x.moveTo(0, 0);
-      x.lineTo(R * Math.cos(a - i * .03), R * Math.sin(a - i * .03)); x.stroke();
-    }
-    x.font = "22px monospace";
-    for (const b of B) {
-      if (!reduce) { const d = ((a - b.t) % TAU + TAU) % TAU; b.v = d < .07 ? 1 : Math.max(0, b.v - .004); }
-      if (b.v > .03) {
-        const bx = R * b.r * Math.cos(b.t), by = R * b.r * Math.sin(b.t);
-        x.globalAlpha = b.v; x.fillStyle = "#ffb347"; x.beginPath(); x.arc(bx, by, 7, 0, TAU); x.fill();
-        x.textAlign = bx > 0 ? "right" : "left"; x.fillText(b.n, bx > 0 ? bx - 12 : bx + 12, by - 10); x.globalAlpha = 1;
-      }
-    }
-    x.restore();
-  }
-  function loop() { a = (a + .02) % TAU; draw(); raf = requestAnimationFrame(loop); }
-  return { start() { cancelAnimationFrame(raf); reduce ? draw() : loop(); }, stop() { cancelAnimationFrame(raf); } };
-})();
-
-/* ---------- Kırmızı düğme ---------- */
-$("#red").addEventListener("click", () => {
-  let n = 0;
-  try { n = +localStorage.getItem("ks7") || 0; } catch (e) {}
-  n++;
-  try { localStorage.setItem("ks7", n); } catch (e) {}
-  $("#cnt").textContent = n; $("#joke").hidden = false; $("#jokeok").focus();
-});
-const closeJoke = () => { $("#joke").hidden = true; $("#red").focus(); };
-$("#jokeok").addEventListener("click", closeJoke);
-addEventListener("keydown", e => { if (e.key === "Escape" && !$("#joke").hidden) closeJoke(); });
-
-/* ---------- Matrix yağmuru ---------- */
-function matrix(sec = 6) {
-  const c = $("#mx"), x = c.getContext("2d"); c.width = innerWidth; c.height = innerHeight; c.hidden = false;
-  const cols = Math.floor(c.width / 16), y = Array.from({ length: cols }, () => Math.random() * -40), end = Date.now() + sec * 1000;
-  (function f() {
-    if (Date.now() > end) { c.hidden = true; return; }
-    x.fillStyle = "rgba(15,23,32,.12)"; x.fillRect(0, 0, c.width, c.height);
-    x.fillStyle = "#ffb347"; x.font = "16px monospace";
-    y.forEach((v, i) => { x.fillText("01ABCXYZ#%"[Math.random() * 10 | 0], i * 16, v * 16); y[i] = v * 16 > c.height && Math.random() > .97 ? 0 : v + 1; });
-    requestAnimationFrame(f);
-  })();
 }
-
-/* ---------- Mini terminal ---------- */
-const out = $("#out"), CAT = { "simit.txt": 0, "kedi.txt": 1, "404.txt": 2, "cay.txt": 3 };
-log(out, "“yardım” yazarak başla.", "cmd");
-async function run(line) {
-  if (!line.trim()) return;
-  const [c, ...a] = line.trim().toLowerCase().split(/\s+/), say = t => { log(out, t); out.scrollTop = out.scrollHeight; };
-  log(out, "> " + line, "cmd");
-  switch (c) {
-    case "yardım": case "yardim": case "help": say("Komutlar: yardım, ls, cat <dosya>, whoami, tarih, hack, matrix, sudo, temizle, çıkış"); break;
-    case "ls": say("simit.txt  kedi.txt  404.txt  cay.txt  sifre_burada_degil.txt"); break;
-    case "cat": {
-      const f = a[0];
-      if (f && Object.hasOwn(CAT, f)) say(FILES[CAT[f]][2]);
-      else if (f && f.startsWith("sifre")) say("Gerçekten burada değil. Aramayı bırak.");
-      else say("cat: " + (f || "?") + ": böyle bir dosya yok");
-      break;
-    }
-    case "whoami": say("Çok önemli biri. Muhtemelen şu an çay içiyor."); break;
-    case "tarih": say(new Date().toLocaleString("tr-TR")); break;
-    case "sudo": say("Burada herkes zaten root. Yine de olmaz."); break;
-    case "claude": say("Selam! Bu siteyi ben yazdım. Hata varsa kediyi suçla."); break;
-    case "matrix":
-      if (reduce) say("Hareket azaltma açık, matrix iptal edildi.");
-      else { say("Kırmızı hap mı, mavi hap mı? Bence simit."); matrix(); }
-      break;
-    case "hack":
-      for (const t of ["Uydulara bağlanılıyor...", "Banka kasaları taranıyor...", "Dur. Bu etik değil.", "İşlem iptal edildi. Bunun yerine bir çay demlendi."]) {
-        say(t); await sleep(reduce ? 0 : 700);
-      }
-      break;
-    case "temizle": case "clear": out.textContent = ""; break;
-    case "çıkış": case "cikis": case "exit": lock("Oturum kapatıldı."); break;
-    default: say("komut bulunamadı: " + c + ". “yardım” yaz.");
-  }
+function openFile(f){
+  document.querySelectorAll("#ftb tr").forEach(r=>r.setAttribute("aria-selected",String(r.dataset.id===f[0])));
+  const d=$("#det");d.textContent="";
+  const h=document.createElement("h3");h.textContent=f[1];
+  const m=document.createElement("p");m.className="meta";
+  m.innerHTML=`<span class="mono">${f[0]}</span><span class="chip ${CLS[f[2]]}">${f[2]}</span><span class="mono dim">${f[3]}</span>`;
+  const p=document.createElement("p");
+  f[5].split(/\[\[|\]\]/).forEach((s,i)=>{
+    if(i%2){const b=document.createElement("button");b.type="button";b.className="rx";b.textContent=s;b.setAttribute("aria-label","Karartılmış metin, açmak için etkinleştirin");
+      b.onclick=()=>{if(!b.classList.contains("open")){b.classList.add("open");b.removeAttribute("aria-label");audit("Karartma kaldırıldı: "+f[0])}};p.appendChild(b)}
+    else p.append(s);
+  });
+  const n=document.createElement("p");n.className="dim";n.textContent="Bu dosyadaki her erişim denetim günlüğüne kaydedilir.";
+  d.append(h,m,p,n);audit("Dosya açıldı: "+f[0]);
 }
-$("#tform").addEventListener("submit", async e => {
-  e.preventDefault();
-  const i = $("#tin"), v = i.value; i.value = ""; i.disabled = true;
-  await run(v);
-  i.disabled = false; if ($("#file").classList.contains("on")) i.focus();
-});
+$("#q").addEventListener("input",renderFiles);
+$("#flt").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  flt=b.dataset.c;document.querySelectorAll("#flt button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderFiles()});
+renderFiles();
 
-boot(true);
+/* ---------- Bağlantı analizi ---------- */
+const gc=$("#gr"),gx=gc.getContext("2d");let GW=0,GH=0,gdpr=1;
+function gsize(){const r=gc.getBoundingClientRect();gdpr=Math.min(devicePixelRatio||1,2);GW=r.width;GH=r.height;gc.width=Math.max(1,GW*gdpr);gc.height=Math.max(1,GH*gdpr);gdraw()}
+function gdraw(){
+  gx.setTransform(gdpr,0,0,gdpr,0,0);gx.clearRect(0,0,GW,GH);
+  const nb=i=>i===gsel||EDGES.some(e=>(e[0]===gsel&&e[1]===i)||(e[1]===gsel&&e[0]===i));
+  EDGES.forEach(e=>{const a=NODES[e[0]],b=NODES[e[1]],on=e[0]===gsel||e[1]===gsel;
+    gx.strokeStyle=on?"#6aa6ff":"rgba(132,147,165,.28)";gx.lineWidth=on?1.8:1;gx.beginPath();gx.moveTo(a[2]*GW,a[3]*GH);gx.lineTo(b[2]*GW,b[3]*GH);gx.stroke()});
+  gx.font="12px 'IBM Plex Mono',monospace";gx.textAlign="center";
+  NODES.forEach((n,i)=>{const px=n[2]*GW,py=n[3]*GH;gx.globalAlpha=nb(i)?1:.35;gx.fillStyle=TC[n[1]];
+    gx.beginPath();gx.arc(px,py,i===gsel?10:7,0,6.2832);gx.fill();
+    if(i===gsel){gx.strokeStyle="#d6dce5";gx.lineWidth=1.5;gx.beginPath();gx.arc(px,py,15,0,6.2832);gx.stroke()}
+    gx.fillStyle="#d6dce5";gx.fillText(n[0],px,py+(py>GH*.8?-18:26))});
+  gx.globalAlpha=1;
+}
+function gselect(i,quiet){
+  gsel=i;gdraw();
+  document.querySelectorAll("#nl button").forEach((b,k)=>b.setAttribute("aria-pressed",String(k===i)));
+  const n=NODES[i],d=$("#nd");d.textContent="";
+  const h=document.createElement("h3");h.textContent=n[0];
+  const m=document.createElement("p");m.className="meta";m.innerHTML=`<span class="chip" style="color:${TC[n[1]]}">${n[1]}</span>`;
+  const p=document.createElement("p");p.textContent=n[4];
+  const t=document.createElement("p");t.className="dim";t.textContent="Bağlantılar";
+  const ul=document.createElement("ul");ul.className="lst";
+  EDGES.filter(e=>e[0]===i||e[1]===i).forEach(e=>{const li=document.createElement("li");li.textContent=NODES[e[0]===i?e[1]:e[0]][0]+" ("+e[2]+")";ul.appendChild(li)});
+  const b=document.createElement("button");b.type="button";b.className="lk";b.textContent="İlgili dosya: "+n[5];
+  b.onclick=()=>{setView("fl");openFile(FILES.find(f=>f[0]===n[5]))};
+  d.append(h,m,p,t,ul,b);
+  if(!quiet)audit("Varlık incelendi: "+n[0]);
+}
+NODES.forEach((n,i)=>{const b=document.createElement("button");b.type="button";b.textContent=n[0];b.onclick=()=>gselect(i);$("#nl").appendChild(b)});
+$("#lg").innerHTML=Object.keys(TC).map(k=>`<span><i style="background:${TC[k]}"></i>${k}</span>`).join("");
+gc.addEventListener("click",ev=>{
+  const r=gc.getBoundingClientRect(),mx=ev.clientX-r.left,my=ev.clientY-r.top;let best=-1,bd=24;
+  NODES.forEach((n,i)=>{const d=Math.hypot(n[2]*GW-mx,n[3]*GH-my);if(d<bd){bd=d;best=i}});
+  if(best>=0)gselect(best);
+});
+addEventListener("resize",()=>{if(view==="gr")gsize()});
+gselect(0,true);
+
+gateGlobe.start();
 </script>
 </body>
 </html>
